@@ -1,0 +1,21 @@
+html, body {
+  box-sizing: border-box;
+  overflow-x: hidden;
+  font-family: "Inter", sans-serif;
+}
+
+input, select {
+  height: 2rem;
+}
+
+a {
+  color: #313131;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 2rem 1rem;
+}
