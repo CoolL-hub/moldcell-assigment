@@ -1,82 +1,132 @@
 <script setup lang="ts">
-import type { ProductType } from '~~/global.types.ts'
+import type { ProductType } from '#shared/types.ts'
 
-const props = defineProps<{
-    product: ProductType
-}>();
-console.log(props);
+defineProps<{
+  product: ProductType
+}>()
 </script>
 
 <template>
-    <div class="product-card">
-        <img :src="product.image" :alt="product.model">
+  <article class="card">
+    <NuxtLink :to="`/products/${product.slug}`">
+      <img
+        :src="product.image"
+        :alt="`${product.brand} ${product.model}`"
+        loading="lazy"
+        class="image"
+      />
+    </NuxtLink>
 
-        <h3>{{ product.brand }} {{ product.model }}</h3>
+    <div class="content">
+      <p class="category">
+        {{ product.category }}
+      </p>
+      
+      <span class="brand">
+        {{ product.brand }}
+      </span>
 
-        <div>
-            <span v-if="product.category === 'accessory'">
-                ANC: {{ product.specs.anc }}
-            </span>
-            <span v-if="product.category === 'wearable'">
-                Display: {{ product.specs.display }}
-            </span>
-            <span v-if="product.category === 'smartphone'">
-                Display: {{ product.specs.display }}
-            </span>
-        </div>
+      <h2>
+        <NuxtLink :to="`/products/${product.slug}`">
+          {{ product.model }}
+        </NuxtLink>
+      </h2>
 
-        <div class="price">
-            <button v-if="product.inStock" class="buy-btn">
-                <span class="old-price">{{ product.oldPriceMDL ?? "" }}</span>
-                <span class="current-price">{{ product.priceMDL }} MDL</span>
-            </button>
-            <div v-else class="no-stock">
-                Not in stock
-            </div>
-        </div>
+      <div class="price">
+        <span class="current">
+          {{ product.priceMDL }} MDL
+        </span>
+
+        <span
+          v-if="product.oldPriceMDL"
+          class="old"
+        >
+          {{ product.oldPriceMDL }} MDL
+        </span>
+      </div>
+
+      <p
+        :class="product.inStock ? 'stock in' : 'stock out'"
+      >
+        {{ product.inStock ? 'In stock' : 'Out of stock' }}
+      </p>
+
+      <slot />
     </div>
+  </article>
 </template>
 
-<style>
-.product-card {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid gray;
-    padding: 1rem;
+<style scoped>
+.card {
+  --card-bg: transparent;
+  --border-color: lightgray;
+
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: .2s;
 }
 
-img {
-    height: 190px;
-    object-fit: contain;
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.image {
+  width: 100%;
+  height: 220px;
+  object-fit: contain;
+  padding: 1rem;
+}
+
+.content {
+  padding: 1rem;
+}
+
+.brand {
+  color: gray;
+  font-size: .9rem;
+}
+
+h2 {
+  margin: .4rem 0;
+  font-size: 1.1rem;
+}
+
+.category {
+  background-color: lightblue;
+  width: fit-content;
+  border-radius: 20px;
+  padding: 4px 10px;
+  text-transform: capitalize;
 }
 
 .price {
-    align-self: end;
-    margin-top: 10px;
+  display: flex;
+  gap: .6rem;
+  align-items: center;
+  margin-top: .7rem;
 }
 
-.buy-btn {
-    width: fit-content;
-    outline: none;
-    background: none;
-    border: none;
-    padding: 0.2em 1em;
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
+.current {
+  font-weight: bold;
+  color: var(--primary);
 }
 
-.no-stock {
-    background-color: rgb(201, 201, 201);
-    border-radius: 20px;
-    padding: 0.5em 1em;
+.old {
+  text-decoration: line-through;
+  color: gray;
 }
 
-.old-price {
-    text-decoration: line-through;
+.stock {
+  margin-top: .7rem;
 }
 
-.current-price {
-    font-size: 20px;
+.in {
+  color: green;
+}
+
+.out {
+  color: crimson;
 }
 </style>
