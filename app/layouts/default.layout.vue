@@ -5,7 +5,8 @@ import Footer from '~~/components/Footer.vue';
 
 <template>
   <main>
-    <!-- <NuxtRouteAnnouncer /> -->
+    <NuxtLoadingIndicator />
+    <NuxtRouteAnnouncer />
     
     <slot />
 
