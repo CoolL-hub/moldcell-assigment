@@ -44,5 +44,5 @@ Again, it can't deliver the full trust to clients with a seamless experience.
 Hire a designer as well. That will "audit" whole website with a developer and fix page per page.
 
 
-### What will I change in the first day?
+## What will I change in the first day?
 Check every page, and make the ones which are desktop only mobile responsive or even refactor for a mobile first approach.
