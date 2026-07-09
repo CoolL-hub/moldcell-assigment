@@ -1,9 +1,18 @@
 <script setup lang="ts">
 import type { ProductType } from '#shared/types.ts'
+import Badge from './ui/Badge.vue';
+import StockAvailability from '~~/components/StockAvailability.vue';
 
 defineProps<{
   product: ProductType
 }>()
+
+const hue = {
+  "smartphone": 220,
+  "wearable": 40,
+  "accessory": 80
+};
+
 </script>
 
 <template>
@@ -18,38 +27,37 @@ defineProps<{
     </NuxtLink>
 
     <div class="content">
-      <p class="category">
-        {{ product.category }}
-      </p>
-      
-      <span class="brand">
-        {{ product.brand }}
-      </span>
-
-      <h2>
-        <NuxtLink :to="`/products/${product.slug}`">
-          {{ product.model }}
-        </NuxtLink>
-      </h2>
-
-      <div class="price">
-        <span class="current">
-          {{ product.priceMDL }} MDL
+      <div>
+        <span class="brand">
+          {{ product.brand }}
         </span>
-
-        <span
-          v-if="product.oldPriceMDL"
-          class="old"
-        >
-          {{ product.oldPriceMDL }} MDL
-        </span>
+        <h2>
+          <NuxtLink :to="`/products/${product.slug}`">
+            {{ product.model }}
+          </NuxtLink>
+        </h2>
       </div>
-
-      <p
-        :class="product.inStock ? 'stock in' : 'stock out'"
+      
+      <Badge
+        :hue="hue[product.category]"
       >
-        {{ product.inStock ? 'In stock' : 'Out of stock' }}
-      </p>
+        {{ product.category }}
+      </Badge>
+      
+      <div>
+        <div class="price">
+          <span class="current">
+            {{ product.priceMDL }} MDL
+          </span>
+          <span
+            v-if="product.oldPriceMDL"
+            class="old"
+          >
+            {{ product.oldPriceMDL }} MDL
+          </span>
+        </div>
+        <StockAvailability :in-stock="product.inStock"></StockAvailability>
+      </div>
 
       <slot />
     </div>
@@ -80,6 +88,9 @@ defineProps<{
 }
 
 .content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   padding: 1rem;
 }
 

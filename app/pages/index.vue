@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import type { ProductType } from "~~/shared/types";
 import ProductCard from "~~/components/ProductCard.vue";
 import ProductFilters from "~~/components/ProductFilters.vue";
-import Footer from "~~/components/Footer.vue";
+import Loading from "~~/components/Loading.vue";
+import Empty from "~~/components/Empty.vue";
+import Error from "~~/components/Error.vue";
 import { productFiltersSchema } from "~~/shared/schemas/productFiltersSchema";
 
 definePageMeta({
@@ -17,7 +18,7 @@ const filters = computed(() =>
   productFiltersSchema.parse(route.query)
 );
 
-const { data: products } = await useFetch<ProductType[]>("/api/devices", {
+const { data: products, pending, error } = await useFetch<ProductType[]>("/api/devices", {
   query: filters,
 });
 
@@ -27,7 +28,7 @@ const filtered = computed(() => products.value ?? []);
 
 <template>
   <div>
-    <NuxtRouteAnnouncer />
+    <h1>Device Catalog</h1>
 
     <ProductFilters
       v-if="products"
@@ -37,29 +38,29 @@ const filtered = computed(() => products.value ?? []);
 
     <div style="height: 20px;"></div>
 
-    <div class="products-wrapper">
-      <ProductCard v-for="product in filtered" :key="product.id" :product="product" />
-    </div>
+    <Loading v-if="pending" />
+
+    <Error
+      v-else-if="error"
+      :message="error.message"
+    />
+
+    <Empty
+      v-else-if="!products?.length"
+    />
+
+    <section
+      v-else
+      class="grid"
+    >
+      <div class="products-wrapper">
+        <ProductCard v-for="product in filtered" :key="product.id" :product="product" />
+      </div>
+    </section>
   </div>
 </template>
 
 <style>
-html,
-body {
-  box-sizing: border-box;
-  overflow-x: hidden;
-  font-family: "Inter", sans-serif;
-}
-
-input, select {
-  height: 2rem;
-}
-
-a {
-  color: #313131;
-  text-decoration: none;
-}
-
 .products-wrapper {
   display: flex;
   flex-direction: column;

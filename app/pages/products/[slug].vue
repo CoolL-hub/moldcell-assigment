@@ -1,16 +1,23 @@
 <script setup lang="ts">
-import { createError, useFetch, useRoute, useSeoMeta } from "nuxt/app";
+import { createError, useFetch, useRoute, useSeoMeta, useAsyncData } from "nuxt/app";
 import type { ProductType } from "~~/shared/types";
-
-
+import Badge from "~~/components/ui/Badge.vue";
+import StockAvailability from "~~/components/StockAvailability.vue";
 
 const route = useRoute()
 const router = useRouter()
 
-console.log(route.params.slug)
+function goBack() {
+  if (window.history.state?.back) {
+    router.back();
+    return;
+  }
+  router.push("/");
+}
 
-const { data: product } = await useFetch<ProductType>(
-  `/api/devices/${route.params.slug}`
+const { data: product, pending } = await useAsyncData<ProductType>(
+  'product',
+  () => $fetch(`/api/devices/${route.params.slug}`)
 )
 
 if (!product.value) {
@@ -21,12 +28,13 @@ if (!product.value) {
 }
 
 useSeoMeta({
-  title: `${product.value.brand} ${product.value.model}`,
-  description: `${product.value.brand} ${product.value.model} available for ${product.value.priceMDL} MDL`,
-  ogTitle: `${product.value.brand} ${product.value.model}`,
-  ogDescription: `${product.value.brand} ${product.value.model}`,
-  ogImage: product.value.image
+  title: () => `${product.value!.brand} ${product.value!.model}`,
+  description: () => `${product.value!.brand} ${product.value!.model} available for ${product.value!.priceMDL} MDL`,
+  ogTitle: () => `${product.value!.brand} ${product.value!.model}`,
+  ogDescription: () => `${product.value!.brand} ${product.value!.model}`,
+  ogImage: () => product.value!.image
 })
+
 definePageMeta({
   layout: "default-layout"
 })
@@ -34,54 +42,42 @@ definePageMeta({
 
 <template>
   <main class="container">
-    <a @click="router.back()">
+    <a @click="goBack" class="back-btn">
       ← Back to catalog
     </a>
 
     <div v-if="product" class="layout">
-      <img
-        :src="product.image"
-        :alt="`${product.brand} ${product.model}`"
-        loading="lazy"
-      >
+      <img :src="product.image" :alt="`${product.brand} ${product.model}`" loading="lazy">
 
       <section>
         <h1>
           {{ product.brand }} {{ product.model }}
         </h1>
 
-      <div class="price">
-        <span class="current">
-          {{ product.priceMDL }} MDL
-        </span>
+        <div class="price">
+          <span class="current">
+            {{ product.priceMDL }} MDL
+          </span>
 
-        <span
-          v-if="product.oldPriceMDL"
-          class="old"
-        >
-          {{ product.oldPriceMDL }} MDL
-        </span>
-      </div>
+          <span v-if="product.oldPriceMDL" class="old">
+            {{ product.oldPriceMDL }} MDL
+          </span>
+        </div>
 
-        <p>
-          Category:
-          <strong>{{ product.category }}</strong>
-        </p>
+        <div style="display: flex; gap: 5px; align-items: baseline;">
+          <div>Category: </div>
+          <Badge>{{ product.category }}</Badge>
+        </div>
 
-        <p>
-          Status:
-          <strong>
-            {{ product.inStock ? 'In Stock' : 'Out of Stock' }}
-          </strong>
-        </p>
+        <div style="display: flex; gap: 5px; align-items: baseline;">
+          <div>Status: </div>
+          <StockAvailability :inStock="product.inStock"></StockAvailability>
+        </div>
 
         <h2>Specifications</h2>
 
         <ul>
-          <li
-            v-for="(value, key) in product.specs"
-            :key="key"
-          >
+          <li v-for="(value, key) in product.specs" :key="key">
             <strong>{{ key }}</strong> :
             {{ value }}
           </li>
@@ -92,12 +88,6 @@ definePageMeta({
 </template>
 
 <style scoped>
-.container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 2rem 1rem;
-}
-
 .layout {
   display: grid;
   gap: 3rem;
@@ -108,6 +98,10 @@ img {
   width: 100%;
   max-width: 450px;
   justify-self: center;
+}
+
+.back-btn {
+  font-weight: 600;
 }
 
 .price {
@@ -134,6 +128,7 @@ li {
 @media (min-width: 900px) {
   .layout {
     grid-template-columns: 400px 1fr;
+    gap: 10rem;
     align-items: start;
   }
 }
