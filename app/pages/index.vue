@@ -7,7 +7,8 @@ import Footer from "~~/components/Footer.vue";
 import { productFiltersSchema } from "~~/shared/schemas/productFiltersSchema";
 
 definePageMeta({
-  keepalive: true
+  keepalive: true,
+  layout: "default-layout"
 })
 
 const route = useRoute();
@@ -39,8 +40,6 @@ const filtered = computed(() => products.value ?? []);
     <div class="products-wrapper">
       <ProductCard v-for="product in filtered" :key="product.id" :product="product" />
     </div>
-
-    <Footer></Footer>
   </div>
 </template>
 

@@ -3,6 +3,7 @@ import { createError, useFetch, useRoute, useSeoMeta } from "nuxt/app";
 import type { ProductType } from "~~/shared/types";
 
 
+
 const route = useRoute()
 const router = useRouter()
 
@@ -25,6 +26,9 @@ useSeoMeta({
   ogTitle: `${product.value.brand} ${product.value.model}`,
   ogDescription: `${product.value.brand} ${product.value.model}`,
   ogImage: product.value.image
+})
+definePageMeta({
+  layout: "default-layout"
 })
 </script>
 
